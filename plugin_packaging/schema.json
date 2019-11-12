@@ -1,0 +1,69 @@
+{
+  "plugin": "readabilitySHARK_0.0.1",
+  "collections":[
+    {
+      "collection_name": "code_entity_state",
+      "desc": "Collection that contains for each commit of the project all code entity states (e.g., all methods of the project at each commit)",
+      "fields": [
+        {
+          "type": "ObjectIdType",
+          "logical_type": "OID",
+          "field_name": "_id",
+          "desc": "Identifier of the document"
+        },
+        {
+          "type":"StringType",
+          "logical_type":"Name",
+          "field_name":"long_name",
+          "desc": "long name of the code entity (e.g., file path or class name or method name with arguments"
+        },
+        {
+          "type":"ObjectIdType",
+          "logical_type":"RID",
+          "reference_to": "commit",
+          "field_name":"commit_id",
+          "desc": "ObjectID that relates to the commit to which this state belongs"
+        },
+        {
+          "type":"ObjectIdType",
+          "logical_type":"RID",
+          "reference_to": "file",
+          "field_name":"file_id",
+          "desc": "ObjectID of the file to which this specific state is related to"
+        },
+        {
+          "type":"StringType",
+          "logical_type":"AbstractionLevel",
+          "field_name":"ce_type",
+          "desc": "Abstraction level of the entity (e.g., class, attribute, enum, interface, method, function, annotation, module)"
+        },
+        {
+          "field_name": "metrics",
+          "logical_type": "Nested",
+          "type": "StructType",
+          "desc": "Metrics of the code entity.",
+          "fields": [
+            {
+              "desc": "Mean file readability after Scalabrino et al. See: https://dibt.unimol.it/report/readability/",
+              "field_name": "readability_scalabrino",
+              "type": "DoubleType",
+              "logical_type": [
+              "ProductMetric",
+              "Java"
+              ]
+            },
+            {
+              "desc": "Mean file readability after Buse et al.",
+              "field_name": "readability_buse",
+              "type": "DoubleType",
+              "logical_type": [
+                "ProductMetric",
+                "Java"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
