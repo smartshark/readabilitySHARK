@@ -21,6 +21,9 @@ wget http://www.arrestedcomputing.com/readability/readability.jar?attredirects=0
 # fetch Scalabrino et al. library and trained classifier
 wget https://dibt.unimol.it/report/readability/files/readability.zip
 unzip readability.zip
+
+# classifier needs to be present in the main folder for tests
+cp libs/readability.classifier ../
 ```
 
 ## Build SmartSHARK plugin
