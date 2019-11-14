@@ -12,20 +12,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ReadabilityTest {
 
     @Test
-    void testMeanReadability() {
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("MyClass.java").getFile());
+    public void testMeanReadability() {
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        final File file = new File(classLoader.getResource("MyClass.java").getFile());
 
         double result;
-        double expected = 0.998885452747345;
+        final double expected = 0.9990015029907227;
 
         try {
-            result = Readability.getMeanReadability(file);
-        }catch(NoFileException e) {
-            result = 0;
-        }catch(IOException e1) {
-            result = 0;
-        }catch(ReadabilityParserException e2) {
+            result = ReadabilityHelper.getMeanReadability(file);
+        }catch(NoFileException|IOException|ReadabilityParserException e) {
             result = 0;
         }
 
@@ -33,18 +29,16 @@ class ReadabilityTest {
     }
 
     @Test
-    void testBuseReadability() {
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("MyClass.java").getFile());
+    public void testBuseReadability() {
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        final File file = new File(classLoader.getResource("MyClass.java").getFile());
 
         double result;
-        double expected = 0.9990423917770386;
+        final double expected = 0.9990692138671875;
 
         try {
-            result = Readability.getMeanReadabilityBuse(file);
-        }catch(NoFileException e) {
-            result = 0;
-        }catch(IOException e1) {
+            result = ReadabilityHelper.getMeanReadabilityBuse(file);
+        }catch(NoFileException|IOException e) {
             result = 0;
         }
 

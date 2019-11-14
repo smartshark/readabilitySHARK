@@ -10,7 +10,8 @@ import org.apache.commons.cli.HelpFormatter;
 /**
  * Singleton Parameter holder for CLI Params and Options.
  */
-public class Params {
+@SuppressWarnings({"PMD.DataClass", "PMD.UseVarargs", "PMD.CommentRequired", "PMD.SystemPrintln"})
+public final class Params {
 
     private static Params instance;
 
@@ -24,7 +25,7 @@ public class Params {
     private String dbUser;
     private String dbPassword;
     private String dbName;
-    private String dbAuthenticationDatabase;
+    private String dbAuthentication;
     private String dbHostname;
     private String dbPort;
     private Boolean dbSsl;
@@ -42,8 +43,8 @@ public class Params {
         return Params.instance;
     }
 
-    public void init(String[] args) {
-        Options options = new Options();
+    public void init(final String[] args) {
+        final Options options = new Options();
 
         options.addOption("help", false, "print this message" );
         options.addOption("project_name", true, "Name of the project.");
@@ -63,9 +64,9 @@ public class Params {
         options.addOption("ssl", false, "Enable SSL for MongoDB connection.");
         options.addOption("of", "output_file", true, "Output file");
 
-        CommandLineParser parser = new GnuParser();
+        final CommandLineParser parser = new GnuParser();
         try {
-            CommandLine cmd = parser.parse(options, args);
+            final CommandLine cmd = parser.parse(options, args);
 
             projectName = cmd.getOptionValue("project_name");
             repositoryUrl = cmd.getOptionValue("u");
@@ -77,7 +78,7 @@ public class Params {
             dbUser = cmd.getOptionValue("U");
             dbPassword = cmd.getOptionValue("P");
             dbName = cmd.getOptionValue("DB");
-            dbAuthenticationDatabase = cmd.getOptionValue("a");
+            dbAuthentication = cmd.getOptionValue("a");
             dbHostname = cmd.getOptionValue("H");
             dbPort = cmd.getOptionValue("p");
             dbSsl = cmd.hasOption("ssl");
@@ -85,7 +86,7 @@ public class Params {
 
             if(cmd.hasOption("help")) {
                 help = true;
-                HelpFormatter formatter = new HelpFormatter();
+                final HelpFormatter formatter = new HelpFormatter();
                 formatter.printHelp("readabilitySHARK", options);
             }
         }
@@ -118,13 +119,16 @@ public class Params {
         return dbPort;
     }
 
-    public String getDbAuthenticationDatabase() {
-        return dbAuthenticationDatabase;
+    public String getDbAuthentication() {
+        return dbAuthentication;
     }
 
-    public boolean getDbSsl() {
+    public boolean useSSL() {
         return dbSsl;
     }
+
+    public String getLogLevel() {return logLevel; }
+
     public String getRepositoryUrl() {
         return repositoryUrl;
     }
@@ -137,11 +141,11 @@ public class Params {
         return repositoryPath;
     }
 
-    public boolean getHelp() {
+    public boolean isHelpOnly() {
         return help;
     }
 
-    public String outputFile() {
+    public String getOutputFile() {
         return outputFile;
     }
 }

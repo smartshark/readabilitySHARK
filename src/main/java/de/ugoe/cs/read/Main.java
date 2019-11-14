@@ -24,25 +24,27 @@ import de.ugoe.cs.smartshark.model.VCSSystem;
 import de.ugoe.cs.smartshark.model.Commit;
 import de.ugoe.cs.smartshark.model.CodeEntityState;
 
-public class Main {
+@SuppressWarnings({"PMD.UseUtilityClass", "PMD.CloseResource", "PMD.SystemPrintln", "PMD.ShortClassName", "PMD.CommentRequired", "PMD.NcssCount"})
+public final class Main {
 
-    public static void main(String[] args) {
-        Params p = Params.getInstance();
-        p.init(args);
+    public static void main(final String[] args) {
+        final Params params = Params.getInstance();
+        params.init(args);
 
         // if we only print help we are not doing anything
-        if(p.getHelp()) {
+        if(params.isHelpOnly()) {
             return;
         }
 
         // we do not want verbose mongo output
-        Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
+        final Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
         mongoLogger.setLevel(Level.SEVERE);
 
-        // we also reset stderr here because morphia outputs its logger config to stderr (https://github.com/MorphiaOrg/morphia/issues/1214)
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream old = System.err;
-        PrintStream tmp = new PrintStream(baos);
+        // we also reset stderr here because morphia outputs its logger config to stderr
+        // (https://github.com/MorphiaOrg/morphia/issues/1214)
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final PrintStream old = System.err;
+        final PrintStream tmp = new PrintStream(baos);
         System.setErr(tmp);
 
         final Morphia morphia = new Morphia();
@@ -51,42 +53,38 @@ public class Main {
         // then we put stderr back because we need it to pass errors to the serverSHARK
         System.err.flush();
         System.setErr(old);
+        tmp.close();
 
-        MongoClientURI uri = new MongoClientURI(Utils.createMongoDBURI(p.getDbUser(), p.getDbPassword(), p.getDbHostname(), p.getDbPort(), p.getDbAuthenticationDatabase(), p.getDbSsl()));
-        MongoClient mongoClient = new MongoClient(uri);
-        Datastore datastore = morphia.createDatastore(mongoClient, p.getDbName());
+        final MongoClientURI uri = new MongoClientURI(Utils.createMongoDBURI(params.getDbUser(), params.getDbPassword(), params.getDbHostname(), params.getDbPort(), params.getDbAuthentication(), params.useSSL()));
+        final MongoClient mongoClient = new MongoClient(uri);
+        final Datastore datastore = morphia.createDatastore(mongoClient, params.getDbName());
 
-        Project project = datastore.createQuery(Project.class).field("name").equal(p.getProjectName()).get();
-        VCSSystem vcsSystem = datastore.createQuery(VCSSystem.class).field("url").equal(p.getRepositoryUrl()).field("project_id").equal(project.getId()).get();
-        Commit commit = datastore.createQuery(Commit.class).field("vcs_system_id").equal(vcsSystem.getId()).field("revision_hash").equal(p.getRevision()).get();
+        final Project project = datastore.createQuery(Project.class).field("name").equal(params.getProjectName()).get();
+        final VCSSystem vcsSystem = datastore.createQuery(VCSSystem.class).field("url").equal(params.getRepositoryUrl()).field("project_id").equal(project.getId()).get();
+        final Commit commit = datastore.createQuery(Commit.class).field("vcs_system_id").equal(vcsSystem.getId()).field("revision_hash").equal(params.getRevision()).get();
 
         // parse all files for the current commit
-        String[] extensions = {"java"};
-        File file = new File(p.getRepositoryPath());
-        Collection<File> files = FileUtils.listFiles(file, extensions, true);
+        final String[] extensions = {"java"};
+        final File file = new File(params.getRepositoryPath());
+        final Collection<File> files = FileUtils.listFiles(file, extensions, true);
 
-        for(File f: files) {
+        for(final File f: files) {
             // we need to subtract the repository path so that we can match the long_names
-            String subtract = p.getRepositoryPath();
+            final StringBuffer subtract = new StringBuffer();
+            subtract.append(params.getRepositoryPath());
             if(!subtract.substring(subtract.length() - 1).equals("/")) {
-                subtract += "/";
+                subtract.append('/');
             }
-            String repoPath = f.getAbsolutePath().replace(subtract, "");
+            final String repoPath = f.getAbsolutePath().replace(subtract.toString(), "");
 
-
-            //System.out.println("file " + repoPath);
             try {
-                //System.out.println("calculate results buse");
-                double result2 = Readability.getMeanReadabilityBuse(f);
+                final double result2 = ReadabilityHelper.getMeanReadabilityBuse(f);
+                final double result = ReadabilityHelper.getMeanReadability(f);
 
-                //System.out.println("calculate results scalabrino");
-                double result = Readability.getMeanReadability(f);
-
-                //System.out.println("results: " + result2 + ", " + result);
-                de.ugoe.cs.smartshark.model.File mongoFile = datastore.createQuery(de.ugoe.cs.smartshark.model.File.class).field("path").equal(repoPath).field("vcs_system_id").equal(vcsSystem.getId()).get();
+                final de.ugoe.cs.smartshark.model.File mongoFile = datastore.createQuery(de.ugoe.cs.smartshark.model.File.class).field("path").equal(repoPath).field("vcs_system_id").equal(vcsSystem.getId()).get();
 
                 // fetch code entity state by s_key
-                String sKey = CodeEntityState.calculateIdentifier(repoPath, commit.getId(), mongoFile.getId());
+                final String sKey = CodeEntityState.calculateIdentifier(repoPath, commit.getId(), mongoFile.getId());
                 CodeEntityState ces = datastore.createQuery(CodeEntityState.class).field("s_key").equal(sKey).get();
 
                 // if we did not find one we create one
@@ -96,15 +94,12 @@ public class Main {
                     ces.setLongName(repoPath);
                     ces.setCeType("file");
                     ces.setCommitId(commit.getId());
-                    ces.setFileId((mongoFile.getId()));
-                    // System.err.println("No CodeEntityState found for: " + repoPath);
-                } else {
-                    // fr.write(p.getRevision() + ";" + ces.getLongName() + ";" + result + "\n");
+                    ces.setFileId(mongoFile.getId());
                 }
 
                 Map<String, Double> metrics = ces.getMetrics();
                 if (metrics == null) {
-                    metrics = new HashMap<String, Double>();
+                    metrics = new HashMap<>();
                 }
                 metrics.put("readability_scalabrino", result);
                 metrics.put("readability_buse", result2);
@@ -113,20 +108,18 @@ public class Main {
                 datastore.save(ces);
 
             }catch(NoFileException e) {
-                System.out.println("no file exception thrown for " + repoPath);
                 System.err.println("no file exception thrown for " + repoPath);
             }catch(ReadabilityParserException e1) {
-                System.out.println("no file exception thrown for " + repoPath);
                 System.err.println("Parse error for file: " + repoPath);
             }catch(IOException e2) {
-                System.out.println("no file exception thrown for " + repoPath);
                 System.err.println("IO error for file: " + repoPath + ", : " + e2.getMessage());
             }catch(NoSuchAlgorithmException e) {
-                System.out.println("no file exception thrown for " + repoPath);
                 System.err.println("No such algorithm " + e.getMessage());
             }finally {
                 System.err.flush();
             }
         }
+
+        mongoClient.close();
     }
 }
