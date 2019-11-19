@@ -23,7 +23,7 @@ wget https://dibt.unimol.it/report/readability/files/readability.zip
 unzip readability.zip
 
 # classifier needs to be present in the main folder for tests
-cp libs/readability.classifier ../
+cp readability.classifier ../
 ```
 
 ## Build SmartSHARK plugin
