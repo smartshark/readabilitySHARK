@@ -1,9 +1,12 @@
 # readabilitySHARK
+[![Build Status](https://travis-ci.com/smartshark/readabilitySHARK.svg?branch=master)](https://travis-ci.com/smartshark/readabilitySHARK)
 
-This plugin executes two readability models to evaluate the readability of source code.
-The first is the model by [Buse and Weimar](http://www.arrestedcomputing.com/readability).
-The second is the model provided by [Scalabrino et al.](https://dibt.unimol.it/report/readability/).
+This plugin executes readability models to evaluate the readability of source code.
 
+# Readability Models
+
+- Buse, Raymond P. L. and Weimer, Westley R. (2010) "Learning a Metric for Code Readability" IEEE Trans. Softw. Eng., DOI: [10.1109/TSE.2009.70](http://dx.doi.org/10.1109/TSE.2009.70) 
+- Scalabrino, Simone and Linares-Vásquez, Mario and Oliveto, Rocco and Poshyvanyk, Denys (2019) "A comprehensive model for code readability" Journal of Software: Evolution and Process, DOI: [10.1002/smr.1958](https://onlinelibrary.wiley.com/doi/abs/10.1002/smr.1958)
 
 # Installation
 
