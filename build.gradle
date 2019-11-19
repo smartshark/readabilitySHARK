@@ -27,7 +27,7 @@ dependencies {
 }
 
 pmd {
-    consoleOutput= false
+    consoleOutput= true
     ignoreFailures = true
     reportsDir = file("build/reports/pmd")
     toolVersion = '6.19.0'
