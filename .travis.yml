@@ -9,8 +9,8 @@ cache:
 install: skip
 
 before_script:
-  - cd libs && wget -O readability.jar http://www.arrestedcomputing.com/readability/readability.jar?attredirects=0 && cd ..
-  - cd libs && wget https://dibt.unimol.it/report/readability/files/readability.zip && unzip readability.zip && cd ..
+  - if [ ! -f libs/readability.jar ]; then cd libs && wget -O readability.jar http://www.arrestedcomputing.com/readability/readability.jar?attredirects=0 && cd ..; fi
+  - if [ ! -f libs/readability.zip ]; then cd libs && wget https://dibt.unimol.it/report/readability/files/readability.zip && unzip -o readability.zip && cd ..; fi
   - cp libs/readability.classifier ./
 
 script:
