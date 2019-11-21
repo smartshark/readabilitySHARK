@@ -19,7 +19,7 @@ If that is complete the project can be built with gradle,
 cd libs
 
 # fetch Buse and Weimar library
-wget http://www.arrestedcomputing.com/readability/readability.jar?attredirects=0
+wget -O readability.jar http://www.arrestedcomputing.com/readability/readability.jar?attredirects=0
 
 # fetch Scalabrino et al. library and trained classifier
 wget https://dibt.unimol.it/report/readability/files/readability.zip
